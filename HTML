@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Snake</title>
+    <script
+      src="https://kit.fontawesome.com/6da2e14f43.js"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Montserrat"
+    />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Blinker:wght@600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="snake.css" />
+  </head>
+  <body>
+    <header>
+      <a href="games.html" id="home"><i class="fas fa-home"></i></a>
+      <strong> <div class="score"></div></strong>
+    </header>
+    <div class="container">
+      <button class="start" onclick="start()">Start</button>
+      <canvas id="gamearea" width="800" height="400">
+        <h1 style="z-index: 3">Game Over!</h1></canvas
+      >
+      <div class="gameover"></div>
+
+      <button class="restart" onclick="start()">Restart</button>
+    </div>
+    <script src="snake.js"></script>
+  </body>
+</html>
