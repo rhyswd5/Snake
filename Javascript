@@ -1,0 +1,243 @@
+const gamearea = document.querySelector("#gamearea");
+const ctx = gamearea.getContext("2d");
+
+//class for coordinates of each part of the snake body
+class snakeBody {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+}
+
+//code that is run when the game starts
+const start = () => {
+  gamearea.style.display = "inline-block";
+
+  //assigning necessary variables
+  let headX = 400;
+  let headY = 200;
+  const gameWidth = 800;
+  const gameHeight = 400;
+  let foodX = Math.floor(Math.random() * 40) * 20;
+  let foodY = Math.floor(Math.random() * 20) * 20;
+  const bodyParts = [];
+  let bodyLength = 2;
+
+  let up = true;
+  let down = false;
+  let right = false;
+  let left = false;
+  let speed = 20;
+  let skippedframes = 15;
+  let frame = 0;
+  let score = 0;
+  let keyPressed = false;
+
+  let lines = [];
+
+  //array for grid background
+  for (let i = 0; i < 41; i++) {
+    lines.push(i * 20);
+  }
+
+  //code that is constantly run throughout the game using requestAnimationFrame
+  const drawGame = () => {
+    let gameover = gameOver();
+    if (gameover) {
+      return;
+    }
+    drawBoard();
+    drawPlayer();
+    checkEaten();
+    movePlayer();
+    drawFood();
+    increaseSpeed();
+    frame++;
+    requestAnimationFrame(drawGame);
+    document.querySelector(".score").innerHTML = `Score: ${score}`;
+  };
+
+  //checks if the player has hit themselves and sets gameOver to be true
+  const gameOver = () => {
+    let gameOver = false;
+    for (i = 0; i < bodyParts.length; i++) {
+      let part = bodyParts[i];
+      if (part.x === headX && part.y === headY) {
+        gameOver = true;
+        break;
+      }
+    }
+    if (gameOver) {
+      gamearea.style.display = "none";
+      document.querySelector(".restart").style.display = "block";
+      document.querySelector(".gameover").style.display = "block";
+      document.querySelector(".gameover").innerHTML = `Game Over! <br>
+      Final Score: ${score}`;
+    }
+    return gameOver;
+  };
+
+  //draws the snake head, snake body and the borders around them
+  const drawPlayer = () => {
+    ctx.fillStyle = "#040";
+    ctx.fillRect(headX, headY, 20, 20);
+    ctx.beginPath();
+    ctx.lineWidth = "2";
+    ctx.strokeStyle = "#040";
+    ctx.rect(headX, headY, 20, 20);
+    ctx.stroke();
+    if (frame % skippedframes == 0) {
+      bodyParts.push(new snakeBody(headX, headY));
+      if (bodyParts.length > bodyLength) {
+        bodyParts.shift();
+      }
+    }
+    for (let i = 0; i < bodyParts.length; i++) {
+      let part = bodyParts[i];
+      ctx.fillStyle = "#070";
+      ctx.fillRect(part.x, part.y, 20, 20);
+      ctx.beginPath();
+      ctx.lineWidth = "2";
+      ctx.strokeStyle = "#040";
+      ctx.rect(part.x, part.y, 20, 20);
+      ctx.stroke();
+    }
+  };
+
+  //draws the board and the grid background of the board
+  const drawBoard = () => {
+    ctx.fillStyle = "#eec";
+    ctx.fillRect(0, 0, gameWidth, gameHeight);
+
+    for (let i = 0; i < 40; i++) {
+      ctx.beginPath();
+      ctx.lineWidth = "1";
+      ctx.strokeStyle = "#DDD";
+      ctx.moveTo(lines[i], 0);
+      ctx.lineTo(lines[i], 400);
+      ctx.moveTo(0, lines[i]);
+      ctx.lineTo(800, lines[i]);
+      ctx.stroke();
+    }
+  };
+
+  //checks how much food has been eaten and sets speed of the game accordingly
+  const increaseSpeed = () => {
+    if (bodyLength >= 4) {
+      skippedframes = 13;
+    }
+    if (bodyLength >= 18) {
+      skippedframes = 11;
+    }
+    if (bodyLength >= 15) {
+      skippedframes = 10;
+    }
+    if (bodyLength >= 20) {
+      skippedframes = 9;
+    }
+    if (bodyLength >= 25) {
+      skippedframes = 8;
+    }
+    if (bodyLength >= 30) {
+      skippedframes = 7;
+    }
+    if (bodyLength >= 35) {
+      skippedframes = 6;
+    }
+    if (bodyLength >= 40) {
+      skippedframes = 5;
+    }
+    if (bodyLength >= 45) {
+      skippedframes = 4;
+    }
+  };
+
+  //check if a pece of food has been eaten and resets the location of the food
+  const checkEaten = () => {
+    if (foodX === headX && foodY === headY) {
+      foodX = Math.floor(Math.random() * 40) * 20;
+      foodY = Math.floor(Math.random() * 20) * 20;
+      bodyLength++;
+      score++;
+    }
+  };
+
+  //draws the food
+  const drawFood = () => {
+    ctx.fillStyle = "#a00";
+    ctx.fillRect(foodX, foodY, 20, 20);
+    ctx.beginPath();
+    ctx.lineWidth = "3";
+    ctx.strokeStyle = "#700";
+    ctx.rect(foodX, foodY, 20, 20);
+    ctx.stroke();
+  };
+
+  //moves the player, stops the play from going back on themselves and teleports to other end if they hit a wall
+  const movePlayer = () => {
+    if (frame % skippedframes == 0) {
+      if (headY > gameHeight - 40 && down) {
+        headY = 0;
+      } else if (headY < 20 && up) {
+        headY = gameHeight - 20;
+      } else if (headX > gameWidth - 40 && right) {
+        headX = 0;
+      } else if (headX < 20 && left) {
+        headX = gameWidth - 20;
+      } else {
+        if (up) {
+          headY = headY - speed;
+        }
+        if (down) {
+          headY = headY + speed;
+        }
+        if (right) {
+          headX = headX + speed;
+        }
+        if (left) {
+          headX = headX - speed;
+        }
+      }
+      keyPressed = false;
+    }
+  };
+
+  //determines action based on which button has been pressed
+  function keyDown(event) {
+    if (!keyPressed) {
+      if ((event.keyCode == 40 || event.keyCode == 83) && !up) {
+        down = true;
+        up = false;
+        left = false;
+        right = false;
+      }
+      if ((event.keyCode == 38 || event.keyCode == 87) && !down) {
+        down = false;
+        up = true;
+        left = false;
+        right = false;
+      }
+      if ((event.keyCode == 37 || event.keyCode == 65) && !right) {
+        down = false;
+        up = false;
+        left = true;
+        right = false;
+      }
+      if ((event.keyCode == 39 || event.keyCode == 68) && !left) {
+        down = false;
+        up = false;
+        left = false;
+        right = true;
+      }
+      keyPressed = true;
+    }
+  }
+  //detects button pressed
+  document.body.addEventListener("keydown", keyDown);
+
+  document.querySelector(".start").style.display = "none";
+  document.querySelector(".restart").style.display = "none";
+  document.querySelector(".gameover").style.display = "none";
+
+  drawGame();
+};
